@@ -46,7 +46,6 @@ def get_star_pos(matrix, row, col):
     return -1, -1
 
 
-
 @timer_func
 def day03(filepath, part2=False):
     with open(filepath) as fin:
@@ -62,6 +61,7 @@ def day03(filepath, part2=False):
                 if re.search(r'[^0-9.]', sv):
                     pn_sum += pn
         return pn_sum
+
     gears = []
     for r, line in enumerate(lines):
         for entry in re.finditer(r'\d+', line):
