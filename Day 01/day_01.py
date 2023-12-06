@@ -41,7 +41,7 @@ def day01(filepath, part2=False):
     # part 2
     cv = []
     r = re.compile('one|two|three|four|five|six|seven|eight|nine|[1-9]')
-    digits = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight','nine']
+    digits = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
     for line in lines:
         first = r.search(line).group()
         last = r.findall(line, overlapped=True)[-1]
