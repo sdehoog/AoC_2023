@@ -27,6 +27,26 @@ def get_surrounding(matrix, row, col):
     return sv
 
 
+def get_star_pos(matrix, row, col):
+    if 1 < row:
+        for i in range(max(0, col[0] - 1), min(col[1] + 1, len(matrix[0]))):
+            if matrix[row - 1][i] == '*':
+                return row - 1, i
+    if row < len(matrix) - 1:
+        for i in range(max(0, col[0] - 1), min(col[1] + 1, len(matrix[0]))):
+            if matrix[row + 1][i] == '*':
+                return row + 1, i
+    if col[0] > 0:
+        if matrix[row][col[0] - 1] == '*':
+            return row, col[0] - 1
+    if col[1] < len(matrix[0]):
+        if matrix[row][col[1]] == '*':
+            return row, col[1]
+
+    return -1, -1
+
+
+
 @timer_func
 def day03(filepath, part2=False):
     with open(filepath) as fin:
@@ -42,10 +62,24 @@ def day03(filepath, part2=False):
                 if re.search(r'[^0-9.]', sv):
                     pn_sum += pn
         return pn_sum
-
+    gears = []
     for r, line in enumerate(lines):
-        for entry in re.finditer(r'\*', line):
-            col = entry.start()
+        for entry in re.finditer(r'\d+', line):
+            pn = int(entry.group())
+            sv = get_surrounding(lines, r, entry.span())
+            sv = ''.join(sv)
+            if '*' in sv:
+                sp = get_star_pos(lines, r, entry.span())
+                gears.append([pn, sp, 0])
+    for i, gear in enumerate(gears):
+        if gear[2] == 1:
+            continue
+        loc = gear[1]
+        for j in range(i + 1, len(gears)):
+            if gears[j][1] == loc:
+                pn_sum += gear[0] * gears[j][0]
+                gears[i][2] = 1
+                gears[j][2] = 1
 
     return pn_sum
 
