@@ -23,14 +23,6 @@ def difference(a: list):
     return b
 
 
-def is_all_zeros(a):
-    for x in a:
-        if x != 0:
-            return False
-
-    return True
-
-
 def is_constant(a):
     c = a[0]
     for x in a[1:]:
