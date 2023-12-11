@@ -1,5 +1,7 @@
+import bisect
 from time import time
 import numpy as np
+from bisect import bisect
 
 
 def timer_func(func):
@@ -20,11 +22,11 @@ def day11(filepath, expansion_scale=2):
     star_map = np.genfromtxt(filepath, delimiter=1, dtype=str, comments='%')
     star_map = np.matrix(star_map == '#')
     empty_row = []
-    for row in range(star_map.shape[0]-1, -1, -1):
+    for row in range(star_map.shape[0]):
         if not star_map[row].sum():
             empty_row.append(row)
     empty_col = []
-    for col in range(star_map.shape[1]-1, -1, -1):
+    for col in range(star_map.shape[1]):
         if not star_map[:, col].sum():
             empty_col.append(col)
 
@@ -39,12 +41,9 @@ def day11(filepath, expansion_scale=2):
         for j, h in enumerate(galaxies[i+1:]):
             d += abs((h-g).real)
             d += abs((h-g).imag)
-            for r in empty_row:
-                if min(h.real, g.real) < r < max(h.real, g.real):
-                    d += expansion_scale - 1
-            for r in empty_col:
-                if min(h.imag, g.imag) < r < max(h.imag, g.imag):
-                    d += expansion_scale - 1
+            d += (expansion_scale - 1) * abs(bisect(empty_row, int(h.real)) - bisect(empty_row, int(g.real)))
+            d += (expansion_scale - 1) * abs(bisect(empty_col, int(h.imag)) - bisect(empty_col, int(g.imag)))
+
     return int(d)
 
 
