@@ -1,6 +1,7 @@
 from time import time
 import numpy as np
 
+
 def timer_func(func):
     # This function shows the execution time of
     # the function object passed
