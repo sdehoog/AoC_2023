@@ -20,21 +20,11 @@ def timer_func(func):
 @timer_func
 def day11(filepath, expansion_scale=2):
     star_map = np.genfromtxt(filepath, delimiter=1, dtype=str, comments='%')
-    star_map = np.matrix(star_map == '#')
-    empty_row = []
-    for row in range(star_map.shape[0]):
-        if not star_map[row].sum():
-            empty_row.append(row)
-    empty_col = []
-    for col in range(star_map.shape[1]):
-        if not star_map[:, col].sum():
-            empty_col.append(col)
+    star_map = star_map == '#'
+    empty_row = np.where(~star_map.any(axis=1))[0].tolist()
+    empty_col = np.where(~star_map.any(axis=0))[0].tolist()
 
-    galaxies = []
-    for i in range(star_map.shape[0]):
-        for j in range(star_map.shape[1]):
-            if star_map[i, j]:
-                galaxies.append(complex(i, j))
+    galaxies = [complex(i, j) for i, j in zip(np.where(star_map)[0], np.where(star_map)[1])]
 
     d = 0
     for i, g in enumerate(galaxies):
