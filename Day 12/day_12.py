@@ -16,6 +16,9 @@ def timer_func(func):
 
 
 def count_groups(string):
+    # return an empty list if the input is empty
+    if not string:
+        return []
     # Initialize an empty list to store the output
     output = []
     # Initialize a variable to store the current group count
@@ -86,7 +89,40 @@ def find_combos_trim(s, g):
             if '.' not in ss:  # make sure there are no good springs in slice
                 if ls == fs or s[fs] != '#':  # if we have the whole rest of the slice
                     # or the next thing after our slice is not a good spring
-                    combos += find_combos_trim(s[fs + 1:], g[1:])  # recrusive
+                    combos += find_combos_trim(s[fs + 1:], g[1:])  # recursive
+
+    return combos
+
+
+# TODO Fix this broken implementation
+@cache
+def fcs(s, g):
+    if not s:  # if s is empty, check if there are entries left in g
+        return g == ()  # return True if g is empty
+    if not g:  # if g is empty, check if there are any broken springs left in s
+        return '#' not in s
+    combos = 0
+    if '?' in s:
+        i = s.index('?')
+    else:
+        return count_groups(s) == g
+    sbi = s[:i]
+    sai = s[i+1:]
+
+    # if the ? is a .
+    gb = count_groups(sbi)
+    gt = g[:len(gb)]  # trimming g to match the len of gb
+    if gt == gb:
+        combos += fcs(sai, g[len(gb):])
+
+    # if the ? is a #
+    gb = count_groups(sbi + '#')
+    gt = g[:len(gb)]
+    if gb[:-1] == gt[:-1]:
+        if gb[-1] < gt[-1]:
+            combos += fcs(sbi + '#' + sai, g)
+        if gb[-1] == gt[-1] and i != len(s) and sai[0] != '#':
+            combos += fcs(sai[1:], g[len(gb):])
 
     return combos
 
@@ -105,12 +141,21 @@ def day12(filepath, part2=False):
         # for perm in perms:
         #     if count_groups(perm) == groups:
         #         combos += 1
+
         # recursive way
         if not part2:
             combos += find_combos_trim(records, groups)
         else:
             combo = find_combos_trim('?'.join([records for _ in range(5)]), groups * 5)
             combos += combo
+
+        # other recursive way
+        # if not part2:
+        #     combos += fcs(records, groups)
+        # else:
+        #     combo = fcs('?'.join([records for _ in range(5)]), groups * 5)
+        #     combos += combo
+
     return combos
 
 
