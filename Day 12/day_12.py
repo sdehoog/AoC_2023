@@ -40,6 +40,7 @@ def count_groups(string):
     # Return the output list
     return tuple(output)
 
+
 # Example usage:
 # string = '#.#.###'
 # print(count_groups(string))  # Output: [1, 1, 3]
@@ -62,41 +63,30 @@ def find_permutations(string):
     # Return the output list
     return output
 
+
 # Example usage:
 # string = '#.#.?#?'
 # print(find_permutations(string))  # Output: ['#.#..#', '#.#.#']
 
 
+@cache
 def find_combos_trim(s, g):
-    if len(s) < (sum(g) + len(g) - 1):
-        return 0
-    if not s and not g:
-        return 1
-    if not g and '#' in s:
-        return 0
+    if not s:  # if s is empty, check if there are entries left in g
+        return g == ()  # return True if g is empty
+    if not g:  # if g is empty, check if there are any broken springs left in s
+        return '#' not in s
     combos = 0
-    if '?' in s:
-        i = s.index('?')
-
-        s1 = s.replace('?', '#', 1)
-        s11 = s1[:i+1]
-        g1 = count_groups(s11)
-        gt = g[:len(g1)]
-        if g1 == gt or g1[-1] < gt[-1]:
-            combos += find_combos_trim(s1, g)
-
-        s2 = s.replace('?', '.', 1)
-        s21 = s2[:i+1]
-        g2 = count_groups(s21)
-        gt = g[:len(g2)]
-        if g2 == gt or g2[-1] < gt[-1]:
-            combos += find_combos_trim(s2, g)
-
-    else:
-        if count_groups(s) == g:
-            return combos + 1
-        else:
-            return combos
+    if s[0] in '.?':  # skip if it is a good spring, or pretend it is a good spring
+        combos += find_combos_trim(s[1:], g)
+    if s[0] in '#?':
+        ls = len(s)
+        fs = g[0]  # first spring group
+        ss = s[:fs]  # slice of the string equal to the len of the first spring group
+        if fs <= ls:  # make sure the len of the string is longer than the first required spring
+            if '.' not in ss:  # make sure there are no good springs in slice
+                if ls == fs or s[fs] != '#':  # if we have the whole rest of the slice
+                    # or the next thing after our slice is not a good spring
+                    combos += find_combos_trim(s[fs + 1:], g[1:])  # recrusive
 
     return combos
 
