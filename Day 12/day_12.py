@@ -18,7 +18,7 @@ def timer_func(func):
 def count_groups(string):
     # return an empty list if the input is empty
     if not string:
-        return []
+        return tuple()
     # Initialize an empty list to store the output
     output = []
     # Initialize a variable to store the current group count
@@ -97,6 +97,8 @@ def find_combos_trim(s, g):
 # TODO Fix this broken implementation
 @cache
 def fcs(s, g):
+    if len(s) < sum(g):
+        return 0
     if not s:  # if s is empty, check if there are entries left in g
         return g == ()  # return True if g is empty
     if not g:  # if g is empty, check if there are any broken springs left in s
@@ -121,7 +123,7 @@ def fcs(s, g):
     if gb[:-1] == gt[:-1]:
         if gb[-1] < gt[-1]:
             combos += fcs(sbi + '#' + sai, g)
-        if gb[-1] == gt[-1] and i != len(s) and sai[0] != '#':
+        if gb[-1] == gt[-1] and i != len(s) and (not sai or sai[0] != '#'):
             combos += fcs(sai[1:], g[len(gb):])
 
     return combos
@@ -143,18 +145,18 @@ def day12(filepath, part2=False):
         #         combos += 1
 
         # recursive way
-        if not part2:
-            combos += find_combos_trim(records, groups)
-        else:
-            combo = find_combos_trim('?'.join([records for _ in range(5)]), groups * 5)
-            combos += combo
+        # if not part2:
+        #     combos += find_combos_trim(records, groups)
+        # else:
+        #     combo = find_combos_trim('?'.join([records for _ in range(5)]), groups * 5)
+        #     combos += combo
 
         # other recursive way
-        # if not part2:
-        #     combos += fcs(records, groups)
-        # else:
-        #     combo = fcs('?'.join([records for _ in range(5)]), groups * 5)
-        #     combos += combo
+        if not part2:
+            combos += fcs(records, groups)
+        else:
+            combo = fcs('?'.join([records for _ in range(5)]), groups * 5)
+            combos += combo
 
     return combos
 
