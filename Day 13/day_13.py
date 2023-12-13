@@ -58,7 +58,7 @@ def day13(filepath, part2=False):
 
     score = 0
     for m in maps:
-        score += score_map(m,part2)
+        score += score_map(m, part2)
 
     return score
 
