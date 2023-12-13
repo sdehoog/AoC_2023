@@ -22,19 +22,25 @@ def score_map(m, smudge=False):
     for i in range(1, m.shape[1]):
         # left slice
         m_l = m[:, 0:i]
+        # right slice
         m_r = m[:, i:]
+        # find the min width
         w = min(m_l.shape[1], m_r.shape[1])
         # reduce left and right to the same wide
         m_l = m_l[:, -w:]
         m_r = m_r[:, :w]
         # flip the right side
         m_r = m_r[:, ::-1]
+        # if we are not looking for smudges
         if not smudge:
+            # check to see if the two sides are the same
             if (m_l == m_r).all():
                 return i
         else:
+            # check to see if there is only 1 difference
             if (~(m_l == m_r)).sum() == 1:
                 return i
+    # searching the rows in the same way as the columns
     for i in range(1, m.shape[0]):
         m_u = m[0:i]
         m_d = m[i:]
