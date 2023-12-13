@@ -41,7 +41,7 @@ def count_groups(string):
     # Append the last count if the last character was a '#'
     if string[-1] == '#':
         output.append(count)
-    # Return the output list
+    # Return the output list as a tuple (tuple for caching)
     return tuple(output)
 
 
