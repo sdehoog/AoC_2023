@@ -94,7 +94,6 @@ def find_combos_trim(s, g):
     return combos
 
 
-# TODO Fix this broken implementation
 @cache
 def fcs(s, g):
     if len(s) < sum(g):
@@ -108,22 +107,23 @@ def fcs(s, g):
         i = s.index('?')
     else:
         return count_groups(s) == g
-    sbi = s[:i]
-    sai = s[i+1:]
+    sbi = s[:i]  # slice before
+    sai = s[i+1:]  # slice after
 
     # if the ? is a .
-    gb = count_groups(sbi)
+    gb = count_groups(sbi)  # finding the groups before the ?
     gt = g[:len(gb)]  # trimming g to match the len of gb
-    if gt == gb:
+    if gt == gb:  # if they match, continue searching with the string after the ? and the reduced groups
         combos += fcs(sai, g[len(gb):])
 
     # if the ? is a #
-    gb = count_groups(sbi + '#')
-    gt = g[:len(gb)]
-    if gb[:-1] == gt[:-1]:
-        if gb[-1] < gt[-1]:
+    gb = count_groups(sbi + '#')  # find the group counts with the additional #
+    gt = g[:len(gb)]  # trim like before
+    if gb[:-1] == gt[:-1]:  # only match all but the last
+        if gb[-1] < gt[-1]:  # if the last doesn't match, flip the current ? to a # and continue matching
             combos += fcs(sbi + '#' + sai, g)
-        if gb[-1] == gt[-1] and i != len(s) and (not sai or sai[0] != '#'):
+        # if the last of the groups match, and sai is not empty or the next character isn't a #
+        if gb[-1] == gt[-1] and (not sai or sai[0] != '#'):
             combos += fcs(sai[1:], g[len(gb):])
 
     return combos
@@ -151,7 +151,7 @@ def day12(filepath, part2=False):
         #     combo = find_combos_trim('?'.join([records for _ in range(5)]), groups * 5)
         #     combos += combo
 
-        # other recursive way
+        # my recursive way
         if not part2:
             combos += fcs(records, groups)
         else:
