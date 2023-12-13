@@ -15,6 +15,7 @@ def timer_func(func):
     return wrap_func
 
 
+@cache
 def count_groups(string):
     # return an empty list if the input is empty
     if not string:
