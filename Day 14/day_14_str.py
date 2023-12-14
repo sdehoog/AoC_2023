@@ -71,8 +71,7 @@ def day14(filepath, part2=False):
                 i_f = (1000000000 - loop_start) % loop_length + loop_start
                 for rock_map, j in rm_dict.items():
                     if j == i_f:
-                        break
-                return north_load(rock_map)
+                        return north_load(rock_map)
             else:
                 rm_dict[rock_map] = i
 
