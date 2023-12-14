@@ -57,13 +57,11 @@ def north_load(m):
 @timer_func
 def day14(filepath, part2=False):
     with open(filepath) as fin:
-        lines = [line.strip() for line in fin.readlines()]
+        rock_map = tuple(line.strip() for line in fin.readlines())
 
     if not part2:
-        rock_map = tilt_north(tuple(lines))
-        return north_load(rock_map)
+        return north_load(tilt_north(rock_map))
     else:
-        rock_map = tuple(lines)
         rm_dict = {}
         for i in range(1, 1000000000):
             rock_map = spin_platform(rock_map)
