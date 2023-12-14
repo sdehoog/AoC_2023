@@ -50,6 +50,10 @@ def spin_platform(rock_map):
     return rock_map
 
 
+def north_load(m):
+    return sum([row.count('O') * i for i, row in enumerate(m[::-1], 1)])
+
+
 @timer_func
 def day14(filepath, part2=False):
     with open(filepath) as fin:
@@ -57,32 +61,22 @@ def day14(filepath, part2=False):
 
     if not part2:
         rock_map = tilt_north(tuple(lines))
-        load = 0
-        for i, row in enumerate(rock_map[::-1]):
-            load += row.count('O') * (i + 1)
-        return load
+        return north_load(rock_map)
     else:
         rock_map = tuple(lines)
         rm_dict = {}
-        loop_start = 0
-        loop_length = 0
         for i in range(1, 1000000000):
             rock_map = spin_platform(rock_map)
-            # make a string representation of the map for hashing
             if rock_map in rm_dict:
                 loop_start = rm_dict[rock_map]
                 loop_length = i - loop_start
-                break
+                i_f = (1000000000 - loop_start) % loop_length + loop_start
+                for rock_map, j in rm_dict.items():
+                    if j == i_f:
+                        break
+                return north_load(rock_map)
             else:
                 rm_dict[rock_map] = i
-        i_f = (1000000000 - loop_start) % loop_length + loop_start
-        for rock_map, i in rm_dict.items():
-            if i == i_f:
-                break
-        load = 0
-        for i, row in enumerate(rock_map[::-1]):
-            load += row.count('O') * (i + 1)
-        return load
 
 
 def main():
