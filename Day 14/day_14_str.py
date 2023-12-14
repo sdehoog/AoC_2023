@@ -16,9 +16,7 @@ def timer_func(func):
 
 def tilt_east(rock_map: list):
     # rock map is a list of strings
-    for i, row in enumerate(rock_map):
-        rock_map[i] = '#'.join([''.join(sorted(p)) for p in row.split('#')])
-    return rock_map
+    return ['#'.join([''.join(sorted(p)) for p in row.split('#')]) for row in rock_map]
 
 
 def tilt_north(m: list):
