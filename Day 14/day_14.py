@@ -101,7 +101,7 @@ def day14(filepath, part2=False):
         for rmh, i in rm_dict.items():
             if i == i_f:
                 break
-        # unpack the map into something easier to calculate on
+        # unpack the string map into something easier to calculate on
         n = len(rock_map[0])
         rock_map = [rmh[i:i+n] for i in range(0, len(rmh), n)]
         load = 0
