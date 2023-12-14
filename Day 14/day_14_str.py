@@ -14,32 +14,32 @@ def timer_func(func):
     return wrap_func
 
 
-def tilt_east(rock_map: list):
-    # rock map is a list of strings
-    return ['#'.join([''.join(sorted(p)) for p in row.split('#')]) for row in rock_map]
+def tilt_east(rock_map: tuple):
+    # rock map is a tuple of strings
+    return tuple('#'.join([''.join(sorted(p)) for p in row.split('#')]) for row in rock_map)
 
 
-def tilt_north(m: list):
+def tilt_north(m: tuple):
     return rotate_counterclockwise(tilt_east(rotate_clockwise(m)))
 
 
-def transpose(m: list):
-    # transposes a list of strings
-    return [''.join(i) for i in list(zip(*m))]
+def transpose(m: tuple):
+    # transposes a tuple of strings
+    return tuple(''.join(i) for i in list(zip(*m)))
 
 
-def flip(m: list):
-    # flip a list
+def flip(m: tuple):
+    # flip a tuple north-south
     return m[::-1]
 
 
-def rotate_clockwise(m: list):
-    # rotate clockwise a list of string
+def rotate_clockwise(m: tuple):
+    # rotate clockwise a tuple of string
     return transpose(flip(m))
 
 
-def rotate_counterclockwise(m: list):
-    # rotate counterclockwise a list of strings
+def rotate_counterclockwise(m: tuple):
+    # rotate counterclockwise a tuple of strings
     return flip(transpose(m))
 
 
@@ -56,34 +56,29 @@ def day14(filepath, part2=False):
         lines = [line.strip() for line in fin.readlines()]
 
     if not part2:
-        rock_map = tilt_north(lines)
+        rock_map = tilt_north(tuple(lines))
         load = 0
         for i, row in enumerate(rock_map[::-1]):
             load += row.count('O') * (i + 1)
         return load
     else:
-        rock_map = lines
+        rock_map = tuple(lines)
         rm_dict = {}
         loop_start = 0
         loop_length = 0
         for i in range(1, 1000000000):
             rock_map = spin_platform(rock_map)
             # make a string representation of the map for hashing
-            rmh = ''.join([*rock_map])
-            if rmh in rm_dict:
-                loop_start = rm_dict[rmh]
+            if rock_map in rm_dict:
+                loop_start = rm_dict[rock_map]
                 loop_length = i - loop_start
                 break
             else:
-                rm_dict[rmh] = i
+                rm_dict[rock_map] = i
         i_f = (1000000000 - loop_start) % loop_length + loop_start
-        rmh = 0
-        for rmh, i in rm_dict.items():
+        for rock_map, i in rm_dict.items():
             if i == i_f:
                 break
-        # unpack the string map into something easier to calculate on
-        n = len(rock_map[0])
-        rock_map = [rmh[i:i+n] for i in range(0, len(rmh), n)]
         load = 0
         for i, row in enumerate(rock_map[::-1]):
             load += row.count('O') * (i + 1)
