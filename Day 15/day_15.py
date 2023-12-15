@@ -48,9 +48,9 @@ def day15(filepath, part2=False):
                 # check to see if that box has lenses in it yet
                 if box in lens_dict:
                     # check to see if that label already exists in the box
-                    for p, l in enumerate(lens_dict[box]):
+                    for i, l in enumerate(lens_dict[box]):
                         if label in l:
-                            lens_dict[box][p][label] = lens
+                            lens_dict[box][i][label] = lens
                             break
                     # add new label and lens to the end of the list
                     else:
@@ -62,11 +62,11 @@ def day15(filepath, part2=False):
                 # check to see if lenses in that box exist yet
                 if box in lens_dict:
                     # loop over the lenses in the box
-                    for p, l in enumerate(lens_dict[box]):
+                    for i, l in enumerate(lens_dict[box]):
                         # if that label does exist
                         if label in l:
                             # remove the lens
-                            lens_dict[box].pop(p)
+                            lens_dict[box].pop(i)
                             break
         lens_power_sum = 0
         for bn, b in lens_dict.items():
