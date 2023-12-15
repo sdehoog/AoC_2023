@@ -52,7 +52,7 @@ def day15(filepath, part2=False):
                         if label in l:
                             lens_dict[box][p][label] = lens
                             break
-                    # add label and lens to the end of the list
+                    # add new label and lens to the end of the list
                     else:
                         lens_dict[box].append({label: lens})
                 else:
