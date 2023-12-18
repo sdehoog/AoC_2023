@@ -56,8 +56,8 @@ class BeamMap:
     def __init__(self, grid, start=((0, -1), 'r')):
         self.grid = Grid2d(grid)
         self.beams = [LaserBeam(*start)]
-        self.energized = set()
-        self.beam_tracking = set()
+        self.energized = set()  # set of coordinates (tuple) that are energized (x, y)
+        self.beam_tracking = set()  # set of coordinates and heading of locations beams have gone through ((x, y), d)
         self.BOUNCE_DICT = {'l': {'/': ('d', None),
                                   '\\': ('u', None),
                                   '-': ('l', None),
@@ -96,7 +96,7 @@ class BeamMap:
                 ng = self.grid[nl]
                 # if the next point is in the grid
                 if ng:
-                    # if the next point is a mirror or splitter AKA not empty space
+                    # if the next point is a mirror or splitter, not empty space
                     if ng != '.':
                         # update the beam position
                         beam.pos = nl
@@ -161,7 +161,7 @@ def day16(filepath, part2=False):
             for x in range(len(lines)):
                 if x == 0 and d == 'r':
                     continue
-                beam_map.new_start(((x, y), 'r'))
+                beam_map.new_start(((x, y), d))
                 beam_map.project_beams()
                 e_c = beam_map.count_energized()
                 if e_c > max_e:
