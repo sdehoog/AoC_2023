@@ -1,4 +1,5 @@
 from time import time
+from collections import deque
 
 
 def timer_func(func):
@@ -55,8 +56,9 @@ class BeamMap:
 
     def __init__(self, grid, start=((0, -1), 'r')):
         self.grid = Grid2d(grid)
-        self.beams = [LaserBeam(*start)]
-        self.energized = set()  # set of coordinates (tuple) that are energized (x, y)
+        # TODO make beams a deque
+        self.beams = deque()
+        self.beams.append(LaserBeam(*start))
         self.beam_tracking = set()  # set of coordinates and heading of locations beams have gone through ((x, y), d)
         self.BOUNCE_DICT = {'l': {'/': ('d', None),
                                   '\\': ('u', None),
@@ -80,67 +82,46 @@ class BeamMap:
                                   '.': ('d', None)}}
 
     def project_beams(self):
-        # list for new beams that form off splitters
-        new_beams = []
-        # list for beams the leave the grid or go into a loop
-        beams_left_grid = []
         while self.beams:
-            # clear the new beams and deleted beams list
-            new_beams.clear()
-            beams_left_grid.clear()
-            # loop over the current beams
-            for i, beam in enumerate(self.beams):
-                # get the next location for the beam
-                nl = beam.next_loc()
-                # get the value of the grid
-                ng = self.grid[nl]
-                # if the next point is in the grid
-                if ng:
-                    # if the next point is a mirror or splitter, not empty space
-                    if ng != '.':
-                        # update the beam position
-                        beam.pos = nl
-                        # add to the energized set
-                        self.energized.add(nl)
-                        # find the new heading(s)
-                        beam.heading, split_b = self.BOUNCE_DICT[beam.heading][ng]
-                        # check to see if the current beam heading has been seen before
-                        if self.beam_tracking.intersection([(nl, beam.heading)]):
-                            # beam has been seen before and will start looping, add the delete list
-                            beams_left_grid.append(i)
-                        else:
-                            # beam hasn't been seen before, add the record to the tracking set
-                            self.beam_tracking.add((nl, beam.heading))
-                        # if a split exists, and it isn't in the beam tracking set
-                        if split_b and not self.beam_tracking.intersection([(nl, split_b)]):
-                            # add the new beam to the new beam list
-                            new_beams.append(LaserBeam(nl, split_b))
-                            # add the new beam to the beam tracking set
-                            self.beam_tracking.add((nl, split_b))
-                    # beam position is empty space
-                    else:
-                        # update beam position
-                        beam.pos = nl
-                        # add to energized list
-                        self.energized.add(nl)
-                        # add to beam tracking list
+            beam = self.beams.popleft()
+            # get the next location for the beam
+            nl = beam.next_loc()
+            # get the value of the grid
+            ng = self.grid[nl]
+            # if the next point is in the grid
+            if ng:
+                # if the next point is a mirror or splitter, not empty space
+                if ng != '.':
+                    # update the beam position
+                    beam.pos = nl
+                    # find the new heading(s)
+                    beam.heading, split_b = self.BOUNCE_DICT[beam.heading][ng]
+                    # check to see if the current beam heading has been seen before
+                    if not self.beam_tracking.intersection([(nl, beam.heading)]):
+                        # beam hasn't been seen before, add the record to the tracking set
                         self.beam_tracking.add((nl, beam.heading))
-                # point is outside the grid
+                        # add to end of queue
+                        self.beams.append(beam)
+                    # if a split exists, and it isn't in the beam tracking set
+                    if split_b and not self.beam_tracking.intersection([(nl, split_b)]):
+                        # add the new beam to the beam queue
+                        self.beams.append(LaserBeam(nl, split_b))
+                        # add the new beam to the beam tracking set
+                        self.beam_tracking.add((nl, split_b))
+                # beam position is empty space
                 else:
-                    # add to delete list
-                    beams_left_grid.append(i)
-            # deleting beams that moved outside the grid or got onto a loop
-            if beams_left_grid:
-                for i in beams_left_grid[::-1]:  # starting at the end to not mess up indexing
-                    self.beams.pop(i)
-            # adding the new beams to the list
-            self.beams += new_beams
+                    # update beam position
+                    beam.pos = nl
+                    # add to beam tracking list
+                    self.beam_tracking.add((nl, beam.heading))
+                    # add to beam queue
+                    self.beams.append(beam)
+            # point is outside the grid and we don't need to do anything
 
     def count_energized(self):
-        return len(self.energized)
+        return len(set([p for p, d in self.beam_tracking]))
 
     def new_start(self, start):
-        self.energized.clear()
         self.beam_tracking.clear()
         self.beams.clear()
         self.beams.append(LaserBeam(*start))
@@ -156,6 +137,7 @@ def day16(filepath, part2=False):
     if not part2:
         return beam_map.count_energized()
     else:
+        # TODO multiprocessing!
         max_e = beam_map.count_energized()
         for d, y in [['r', -1], ['l', len(lines[0])]]:
             for x in range(len(lines)):
