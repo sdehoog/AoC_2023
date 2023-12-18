@@ -1,5 +1,9 @@
 from time import time
 from collections import deque
+from multiprocessing import Pool
+from itertools import chain
+from functools import partial
+import os
 
 
 def timer_func(func):
@@ -56,7 +60,6 @@ class BeamMap:
 
     def __init__(self, grid, start=((0, -1), 'r')):
         self.grid = Grid2d(grid)
-        # TODO make beams a deque
         self.beams = deque()
         self.beams.append(LaserBeam(*start))
         self.beam_tracking = set()  # set of coordinates and heading of locations beams have gone through ((x, y), d)
@@ -127,6 +130,12 @@ class BeamMap:
         self.beams.append(LaserBeam(*start))
 
 
+def f(*args):
+    bm = BeamMap(*args)
+    bm.project_beams()
+    return bm.count_energized()
+
+
 @timer_func
 def day16(filepath, part2=False):
     with open(filepath) as fin:
@@ -137,25 +146,31 @@ def day16(filepath, part2=False):
     if not part2:
         return beam_map.count_energized()
     else:
-        # TODO multiprocessing!
-        max_e = beam_map.count_energized()
-        for d, y in [['r', -1], ['l', len(lines[0])]]:
-            for x in range(len(lines)):
-                if x == 0 and d == 'r':
-                    continue
-                beam_map.new_start(((x, y), d))
-                beam_map.project_beams()
-                e_c = beam_map.count_energized()
-                if e_c > max_e:
-                    max_e = e_c
-        for d, x in [['u', len(lines)], ['d', -1]]:
-            for y in range(len(lines[0])):
-                beam_map.new_start(((x, y), d))
-                beam_map.project_beams()
-                e_c = beam_map.count_energized()
-                if e_c > max_e:
-                    max_e = e_c
-        return max_e
+        # using multiprocessing
+        starts = chain([((x, y), d) for d, y in [['r', -1], ['l', len(lines[0])]] for x in range(len(lines))],
+                       [((x, y), d) for d, x in [['u', len(lines)], ['d', -1]] for y in range(len(lines[0]))])
+        with Pool(os.cpu_count()) as p:
+            return max(p.map(partial(f, lines), starts))
+
+        # old way
+        # max_e = beam_map.count_energized()
+        # for d, y in [['r', -1], ['l', len(lines[0])]]:
+        #     for x in range(len(lines)):
+        #         if x == 0 and d == 'r':
+        #             continue
+        #         beam_map.new_start(((x, y), d))
+        #         beam_map.project_beams()
+        #         e_c = beam_map.count_energized()
+        #         if e_c > max_e:
+        #             max_e = e_c
+        # for d, x in [['u', len(lines)], ['d', -1]]:
+        #     for y in range(len(lines[0])):
+        #         beam_map.new_start(((x, y), d))
+        #         beam_map.project_beams()
+        #         e_c = beam_map.count_energized()
+        #         if e_c > max_e:
+        #             max_e = e_c
+        # return max_e
 
 
 def main():
