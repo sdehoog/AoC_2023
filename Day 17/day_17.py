@@ -16,7 +16,6 @@ def timer_func(func):
 
 
 class Grid2d:
-
     def __init__(self, grid):
         self.grid = grid
         self.height = len(grid)
@@ -25,7 +24,7 @@ class Grid2d:
     def __getitem__(self, item):
         # returns None if outside the grid
         if len(item) > 2:
-            raise ValueError('Grid2D expected a list like of length 2. Length of accessor longer than expected')
+            raise ValueError('Grid2D expected a list like of length 2. Length of item longer than expected')
         x, y = item
         if 0 <= x < self.height:
             if 0 <= y < self.width:
@@ -54,9 +53,12 @@ def day17(filepath, part2=False):
     if part2:
         heappush(h, (0, (0, 0), ('d', 0)))
     v = {((0, 0), ('r', 0)): 0}  # visited nodes
+    t = (len(lines) - 1, len(lines[0]) - 1)
 
     while h:
         hl, (x, y), (hd, hs) = heappop(h)
+        if (x, y) == t:
+            return hl
         # check in all directions
         for d, (dx, dy) in dirs.items():
             # get the grid value in that direction
@@ -104,7 +106,7 @@ def day17(filepath, part2=False):
                     # add the point to the heap
                     heappush(h, (hl + w, (x + dx, y + dy), (d, nhs)))
 
-    ends = [hl for ((x, y), _), hl in v.items() if (x, y) == (grid.height - 1, grid.width - 1)]
+    ends = [hl for ((x, y), _), hl in v.items() if (x, y) == t]
     ans = min(ends)
     return ans
 
