@@ -33,31 +33,6 @@ class Grid2d:
         return None
 
 
-def path_to_source(v, end):
-    dirs = {'r': (0, 1),
-            'd': (1, 0),
-            'l': (0, -1),
-            'u': (-1, 0)}
-    path = [end]
-    x, y = end
-    while (x, y) != (0, 0):
-        d = v[(x, y)][1][0]
-        dx, dy = dirs[d]
-        x, y = x - dx, y - dy
-        path.append((x, y))
-    return path[::-1]
-
-
-def print_path(path, grid):
-    for x in range(grid.height):
-        for y in range(grid.width):
-            if (x, y) in path:
-                print('X', end='')
-            else:
-                print(grid[(x,y)], end='')
-        print()
-
-
 def opposites(a, b):
     if (a, b) in [('r', 'l'), ('l', 'r')]:
         return True
@@ -89,12 +64,19 @@ def day17(filepath, part2=False):
             # if the grid value exists
             if w:
                 w = int(w)
-                # check to see if we have done three steps in that direction already
-                # or if the direction is the opposite of the current heading
-                if (d == hd and hs == 3) or opposites(d, hd):
-                    # skip this heading if we have taken the 3 steps already
-                    continue
-                # check to see if we are heading in the same direction
+                if part2:
+                    if (d == hd and hs == 10) or opposites(d, hd):
+                        # skip this heading if we have taken the 10 steps already
+                        continue
+                    if hs < 4 and d != hd:
+                        continue
+                else:
+                    # check to see if we have done three steps in that direction already
+                    # or if the direction is the opposite of the current heading
+                    if (d == hd and hs == 3) or opposites(d, hd):
+                        # skip this heading if we have taken the 3 steps already
+                        continue
+                    # check to see if we are heading in the same direction
                 if d == hd:
                     # increase the heading step by 1
                     nhs = hs + 1
@@ -121,9 +103,8 @@ def day17(filepath, part2=False):
                     v[(x + dx, y + dy), (d, nhs)] = hl + w
                     # add the point to the heap
                     heappush(h, (hl + w, (x + dx, y + dy), (d, nhs)))
-    # path = path_to_source(v, (len(lines)-1, len(lines[0])-1))
-    # print_path(path, grid)
-    ends = [hl for ((x, y), (d, hs)), hl in v.items() if (x, y) == (grid.height - 1, grid.width - 1)]
+
+    ends = [hl for ((x, y), _), hl in v.items() if (x, y) == (grid.height - 1, grid.width - 1)]
     ans = min(ends)
     return ans
 
@@ -132,8 +113,8 @@ def main():
     assert day17('test17') == 102
     print(f"Part 1: {day17('input17')}")
 
-    # assert day17('test17', True) == 94
-    # print(f"Part 2: {day17('input17', True)}")
+    assert day17('test17', True) == 94
+    print(f"Part 2: {day17('input17', True)}")
 
 
 if __name__ == '__main__':
